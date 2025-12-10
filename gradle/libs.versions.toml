@@ -12,6 +12,7 @@ constraintlayout = "2.2.1"
 # Compose
 compose-bom = "2024.12.01"
 compose-activity = "1.9.3"
+compose-compiler = "1.5.15"
 # Room
 room = "2.6.1"
 # Hilt
@@ -70,4 +71,5 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version = "2.0.21-1.0.28" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
