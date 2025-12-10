@@ -5,18 +5,29 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -34,7 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.rk2.domain.model.TodoItem
+import com.example.rk2.presentation.ui.components.AnalyticsCard
 import com.example.rk2.presentation.ui.components.TodoItemCard
+import com.example.rk2.presentation.viewmodel.SortOrder
 import com.example.rk2.presentation.viewmodel.TodoViewModel
 
 /**
@@ -47,8 +60,11 @@ fun TodoListScreen(
     onNavigateToDetail: (Int) -> Unit,
     viewModel: TodoViewModel = hiltViewModel()
 ) {
-    // Collect todos state
+    // Collect state
     val todos by viewModel.todos.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
+    val analytics by viewModel.analytics.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -72,20 +88,55 @@ fun TodoListScreen(
             }
         }
     ) { paddingValues ->
-        if (todos.isEmpty()) {
-            EmptyState(modifier = Modifier.padding(paddingValues))
-        } else {
-            TodoListContent(
-                todos = todos,
-                onItemClick = { todo -> onNavigateToDetail(todo.id) },
-                onCheckedChange = { todo, isChecked ->
-                    if (isChecked != todo.isCompleted) {
-                        viewModel.toggleTodoStatus(todo)
-                    }
-                },
-                onDelete = { todo -> viewModel.deleteTodo(todo) },
-                modifier = Modifier.padding(paddingValues)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            // Analytics Card
+            AnalyticsCard(
+                total = analytics.totalCount,
+                completed = analytics.completedCount,
+                progress = analytics.progress,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             )
+            
+            // Search Bar
+            SearchBar(
+                query = searchQuery,
+                onQueryChange = { viewModel.onSearchQueryChange(it) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+            
+            // Sort Options
+            SortOptionsRow(
+                selectedSortOrder = sortOrder,
+                onSortOrderChange = { viewModel.onSortOrderChange(it) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+            
+            // Todo List
+            if (todos.isEmpty()) {
+                EmptyState(modifier = Modifier.weight(1f))
+            } else {
+                TodoListContent(
+                    todos = todos,
+                    onItemClick = { todo -> onNavigateToDetail(todo.id) },
+                    onCheckedChange = { todo, isChecked ->
+                        if (isChecked != todo.isCompleted) {
+                            viewModel.toggleTodoStatus(todo)
+                        }
+                    },
+                    onDelete = { todo -> viewModel.deleteTodo(todo) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }
@@ -161,6 +212,73 @@ private fun SwipeToDismissTodoItem(
             onCheckedChange = onCheckedChange,
             onItemClick = onItemClick
         )
+    }
+}
+
+@Composable
+private fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = modifier.fillMaxWidth(),
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search"
+            )
+        },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Clear"
+                    )
+                }
+            }
+        },
+        placeholder = { Text("Search tasks...") },
+        singleLine = true
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SortOptionsRow(
+    selectedSortOrder: SortOrder,
+    onSortOrderChange: (SortOrder) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Sort:",
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.padding(end = 4.dp),
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        SortOrder.values().forEach { order ->
+            FilterChip(
+                selected = selectedSortOrder == order,
+                onClick = { onSortOrderChange(order) },
+                label = {
+                    Text(
+                        text = when (order) {
+                            SortOrder.DATE_ASC -> "Date"
+                            SortOrder.PRIORITY_DESC -> "Priority"
+                            SortOrder.TITLE_ASC -> "Title"
+                        }
+                    )
+                }
+            )
+        }
     }
 }
 
