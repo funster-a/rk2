@@ -10,5 +10,6 @@ sealed class Screen(val route: String) {
     object TodoDetail : Screen("todo_detail/{id}") {
         fun createRoute(id: Int) = "todo_detail/$id"
     }
+    object Settings : Screen("settings")
 }
 

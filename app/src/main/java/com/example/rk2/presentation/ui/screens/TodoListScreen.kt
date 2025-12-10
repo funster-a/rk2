@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -58,6 +59,7 @@ import com.example.rk2.presentation.viewmodel.TodoViewModel
 fun TodoListScreen(
     onNavigateToAdd: () -> Unit,
     onNavigateToDetail: (Int) -> Unit,
+    onNavigateToSettings: () -> Unit,
     viewModel: TodoViewModel = hiltViewModel()
 ) {
     // Collect state
@@ -70,6 +72,14 @@ fun TodoListScreen(
         topBar = {
             TopAppBar(
                 title = { Text("My Tasks") },
+                actions = {
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Settings"
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
