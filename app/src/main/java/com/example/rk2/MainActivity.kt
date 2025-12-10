@@ -38,7 +38,14 @@ class MainActivity : ComponentActivity() {
                         startDestination = Screen.TodoList.route
                     ) {
                         composable(Screen.TodoList.route) {
-                            TodoListScreen()
+                            TodoListScreen(
+                                onNavigateToAdd = {
+                                    navController.navigate(Screen.AddTodo.route)
+                                },
+                                onNavigateToDetail = { todoId ->
+                                    navController.navigate(Screen.TodoDetail.createRoute(todoId))
+                                }
+                            )
                         }
                         
                         composable(Screen.AddTodo.route) {
