@@ -1,20 +1,66 @@
 package com.example.rk2
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavArgument
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.rk2.presentation.navigation.Screen
+import com.example.rk2.presentation.ui.screens.AddTodoScreen
+import com.example.rk2.presentation.ui.screens.TodoDetailScreen
+import com.example.rk2.presentation.ui.screens.TodoListScreen
+import com.example.rk2.presentation.ui.theme.ToDoAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
-class MainActivity : AppCompatActivity() {
+/**
+ * Main Activity for the Todo application.
+ * Sets up Hilt, Compose, and Navigation.
+ */
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        setContent {
+            ToDoAppTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    val navController = rememberNavController()
+                    
+                    NavHost(
+                        navController = navController,
+                        startDestination = Screen.TodoList.route
+                    ) {
+                        composable(Screen.TodoList.route) {
+                            TodoListScreen()
+                        }
+                        
+                        composable(Screen.AddTodo.route) {
+                            AddTodoScreen()
+                        }
+                        
+                        composable(
+                            route = Screen.TodoDetail.route,
+                            arguments = listOf(
+                                NavArgument("id") {
+                                    type = NavType.IntType
+                                }
+                            )
+                        ) { backStackEntry ->
+                            val todoId = backStackEntry.arguments?.getInt("id")
+                            TodoDetailScreen(todoId = todoId)
+                        }
+                    }
+                }
+            }
         }
     }
 }
