@@ -49,7 +49,11 @@ class MainActivity : ComponentActivity() {
                         }
                         
                         composable(Screen.AddTodo.route) {
-                            AddTodoScreen()
+                            AddTodoScreen(
+                                onNavigateBack = {
+                                    navController.popBackStack()
+                                }
+                            )
                         }
                         
                         composable(
