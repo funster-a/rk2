@@ -60,7 +60,12 @@ class MainActivity : ComponentActivity() {
                             route = Screen.TodoDetail.route
                         ) { backStackEntry ->
                             val todoId = backStackEntry.arguments?.getString("id")?.toIntOrNull()
-                            TodoDetailScreen(todoId = todoId)
+                            TodoDetailScreen(
+                                todoId = todoId,
+                                onNavigateBack = {
+                                    navController.popBackStack()
+                                }
+                            )
                         }
                     }
                 }
