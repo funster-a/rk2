@@ -7,10 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
 import com.example.rk2.presentation.navigation.Screen
 import com.example.rk2.presentation.ui.screens.AddTodoScreen
@@ -48,14 +46,9 @@ class MainActivity : ComponentActivity() {
                         }
                         
                         composable(
-                            route = Screen.TodoDetail.route,
-                            arguments = listOf(
-                                navArgument("id") {
-                                    type = NavType.IntType
-                                }
-                            )
+                            route = Screen.TodoDetail.route
                         ) { backStackEntry ->
-                            val todoId = backStackEntry.arguments?.getInt("id")
+                            val todoId = backStackEntry.arguments?.getString("id")?.toIntOrNull()
                             TodoDetailScreen(todoId = todoId)
                         }
                     }
