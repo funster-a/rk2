@@ -19,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -188,6 +189,7 @@ fun AddTodoScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PrioritySelector(
     selectedPriority: Priority,
@@ -195,40 +197,32 @@ private fun PrioritySelector(
 ) {
     Row(modifier = Modifier.fillMaxWidth()) {
         Priority.values().forEach { priority ->
+            val isSelected = selectedPriority == priority
+            val selectedContainerColor = when (priority) {
+                Priority.HIGH -> MaterialTheme.colorScheme.errorContainer
+                Priority.MEDIUM -> Color(0xFFFFE0B2) // Light Orange
+                Priority.LOW -> MaterialTheme.colorScheme.tertiaryContainer
+            }
+            val selectedLabelColor = when (priority) {
+                Priority.HIGH -> MaterialTheme.colorScheme.onErrorContainer
+                Priority.MEDIUM -> Color(0xFFE65100) // Dark Orange
+                Priority.LOW -> MaterialTheme.colorScheme.onTertiaryContainer
+            }
+
             FilterChip(
-                selected = selectedPriority == priority,
+                selected = isSelected,
                 onClick = { onPrioritySelected(priority) },
                 label = { Text(priority.name) },
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 4.dp),
-                colors = getPriorityChipColors(priority, selectedPriority == priority)
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = if (isSelected) selectedContainerColor else MaterialTheme.colorScheme.surface,
+                    selectedLabelColor = if (isSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface
+                )
             )
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun getPriorityChipColors(
-    priority: Priority,
-    isSelected: Boolean
-): androidx.compose.material3.FilterChipColors {
-    val selectedContainerColor = when (priority) {
-        Priority.HIGH -> MaterialTheme.colorScheme.errorContainer
-        Priority.MEDIUM -> Color(0xFFFFE0B2) // Light Orange
-        Priority.LOW -> MaterialTheme.colorScheme.tertiaryContainer
-    }
-    val selectedLabelColor = when (priority) {
-        Priority.HIGH -> MaterialTheme.colorScheme.onErrorContainer
-        Priority.MEDIUM -> Color(0xFFE65100) // Dark Orange
-        Priority.LOW -> MaterialTheme.colorScheme.onTertiaryContainer
-    }
-
-    return androidx.compose.material3.FilterChipDefaults.filterChipColors(
-        selectedContainerColor = if (isSelected) selectedContainerColor else MaterialTheme.colorScheme.surface,
-        selectedLabelColor = if (isSelected) selectedLabelColor else MaterialTheme.colorScheme.onSurface
-    )
 }
 
 @Composable
